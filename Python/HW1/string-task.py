@@ -9,14 +9,12 @@
 # Example input: 'read'
 # Example output: 'reading'
 def verbing(s):
-    if len(s) > 3:
-        if s[-3 : ] == "ing":
-            s = s + "ly"
-        else:
-            s = s + "ing"
+    if len(s) >= 3:
+        if s[-3:] == "ing":
+            return s + "ly"
+        return s + "ing"
     return s
- 
- 
+
 # Given a string, find the first appearance of the
 # substring 'not' and 'bad'. If the 'bad' follows
 # the 'not', replace the whole 'not'...'bad' substring
@@ -30,10 +28,10 @@ def not_bad(s):
     j = 0
     if i != -1:
         j = s.find('bad', i) + 3
-    if i != -1 and j != -1 and i < j:
-        s = s[:i] + 'good' + s[j:]
+    if i != -1 and j != 2 and i < j:
+        return s[:i] + 'good' + s[j:]
     return s
- 
+
  
 # Consider dividing a string into two halves.
 # If the length is even, the front and back halves are the same length.
@@ -46,21 +44,9 @@ def not_bad(s):
 # Example input: 'abcd', 'xy'
 # Example output: 'abxcdy'
 def front_back(a, b):
-    a_front = ""
-    b_front = ""
-    a_back = ""
-    b_back = ""
-    if len(a) % 2 == 0:
-        a_front = a[: len(a) // 2]
-        a_back = a[len(a) // 2:]
-    else:
-        a_front = a[: len(a) // 2 + 1]
-        a_back = a[len(a) // 2 + 1:]
-
-    if len(b) % 2 == 0:
-        b_front = b[: len(b) // 2]
-        b_back = b[len(b) // 2:]
-    else:
-        b_front = b[: len(b) // 2 + 1]
-        b_back = b[len(b) // 2 + 1:]
+    a_front = a[:(len(a) + 1) // 2]
+    a_back = a[(len(a) + 1) // 2:]
+    b_front = b[:(len(b) + 1) // 2]
+    b_back = b[(len(b) + 1) // 2:]
     return a_front + b_front + a_back + b_back
+
