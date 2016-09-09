@@ -16,11 +16,16 @@ def linear_merge(lst1, lst2):
     i = 0
     while len(lst1) > 0 and len(lst2) > 0:
         if lst1[0] < lst2[0]:
-            lst.append(lst1.pop(0))
+            lst.append(lst1[0])
+            lst1 = lst1[1:]
         else:
-            lst.append(lst2.pop(0))
+            lst.append(lst2[0])
+            lst2 = lst2[1:]
 
     lst.extend(lst1)
     lst.extend(lst2)
        
     return lst
+lst1 = [1, 3, 5, 7, 9]
+lst2 = [2, 4, 6, 8, 10]
+print(linear_merge(lst1, lst2))
