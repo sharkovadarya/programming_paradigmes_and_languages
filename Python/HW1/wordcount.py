@@ -49,9 +49,8 @@ def helper(filename):
     return dictionary
 
 def print_words(filename):
-    import operator
     dicto = helper(filename)
-    for i in sorted(dicto.keys(), key=operator.itemgetter(0)):
+    for i in sorted(dicto.keys()):
         print(i, dicto[i])
 
 def print_top(filename):
