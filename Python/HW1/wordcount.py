@@ -44,31 +44,28 @@ def read_words(filename):
 # Then print_words() and print_top() can just call the utility function.
 def helper(filename):
     dictionary = {}
-    helper_list = read_words(filename)
-    words = []
-    for i in range(len(helper_list)):
-        words = helper_list[i].lower()
-    for i in range(len(words)):
-        dictionary[words[i]] = dictionary.get(words[i], 0) + 1
+    for i in [x.lower() for x in read_words(filename)]:
+        dictionary[i] = dictionary.get(i, 0) + 1
     return dictionary
+
 def print_words(filename):
     import operator
     dicto = helper(filename)
     for i in sorted(dicto.keys(), key=operator.itemgetter(0)):
         print(i, dicto[i])
-    return None
+
 def print_top(filename):
     import operator
     dicto = helper(filename)
     for i in sorted(dicto.items(), key=operator.itemgetter(1), reverse=True):
         print(i[0], " ", i[1])
-    return None
+
 ###
 
 
 # This basic command line argument parsing code is provided and
 # calls the print_words() and print_top() functions which you must define.
-"""def main():
+def main():
     if len(sys.argv) != 3:
         print('usage: ./wordcount.py {--count | --topcount} file')
         sys.exit(1)
@@ -84,4 +81,4 @@ def print_top(filename):
         sys.exit(1)
  
 if __name__ == '__main__':
-    main()"""
+    main()
