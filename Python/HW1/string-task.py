@@ -46,8 +46,9 @@ def front_back(a, b):
     a_mid = (len(a) + 1) // 2
     a_front = a[:a_mid]
     a_back = a[a_mid:]
+
     b_mid = (len(b) + 1) // 2
     b_front = b[:b_mid]
     b_back = b[b_mid:]
+
     return a_front + b_front + a_back + b_back
-print(front_back(input(), input()))
