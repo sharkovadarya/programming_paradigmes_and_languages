@@ -27,12 +27,11 @@ def not_bad(s):
     i = s.find('not')
     j = 0
     if i != -1:
-        j = s.find('bad', i) + 3
-    if i != -1 and j != 2 and i < j:
-        return s[:i] + 'good' + s[j:]
+        j = s.find('bad', i)
+    if i != -1 and i < j:
+        return s[:i] + 'good' + s[j + 3:]
     return s
 
- 
 # Consider dividing a string into two halves.
 # If the length is even, the front and back halves are the same length.
 # If the length is odd, we'll say that the extra char goes in the front half.
@@ -44,9 +43,11 @@ def not_bad(s):
 # Example input: 'abcd', 'xy'
 # Example output: 'abxcdy'
 def front_back(a, b):
-    a_front = a[:(len(a) + 1) // 2]
-    a_back = a[(len(a) + 1) // 2:]
-    b_front = b[:(len(b) + 1) // 2]
-    b_back = b[(len(b) + 1) // 2:]
+    a_mid = (len(a) + 1) // 2
+    a_front = a[:a_mid]
+    a_back = a[a_mid:]
+    b_mid = (len(b) + 1) // 2
+    b_front = b[:b_mid]
+    b_back = b[b_mid:]
     return a_front + b_front + a_back + b_back
-
+print(front_back(input(), input()))
