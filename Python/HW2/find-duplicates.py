@@ -21,7 +21,14 @@ def find_duplicates(path):
                 else:
                     duplicates[file_hash] = [file_path]
 
+    return duplicates
+
+
+def print_duplicates(duplicates):
     for file_hash in duplicates:
         if len(duplicates[file_hash]) > 1:
             print(':'.join(duplicates[file_hash]))
 
+
+for path in sys.argv[1:]:
+    print_duplicates(find_duplicates(path))
