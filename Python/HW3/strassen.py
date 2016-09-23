@@ -52,7 +52,7 @@ def strassen(a, b):
 n = int(input())
 A = read_matrix(n)
 B = read_matrix(n)
-print((strassen(A, B))[:n, :n])
+print ('\n'.join(' '.join(str(cell) for cell in row) for row in (strassen(A, B))[:n, :n]))
 
 
 
