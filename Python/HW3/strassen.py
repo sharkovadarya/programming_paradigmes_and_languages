@@ -15,13 +15,13 @@ def strassen(m1, m2):
     def process_input(m1, m2):
         if (m1.shape[0] - 1) & m1.shape[0]:
             s = 2 ** m1.shape[0].bit_length()
-            a = np.zeros([s, s], dtype=int)
+            a = np.zeros([s, s], dtype=m1.dtype)
             a[:m1.shape[0], :m1.shape[1]] = m1
-            b = np.zeros([s, s], dtype=int)
+            b = np.zeros([s, s], dtype=m2.dtype)
             b[:m2.shape[0], :m2.shape[1]] = m2
-            c = np.empty([s, s], dtype=int)
+            c = np.empty([s, s], dtype=m1.dtype)
             return a, b, c
-        c = np.empty([m1.shape[0], m1.shape[0]], dtype=int)
+        c = np.empty([m1.shape[0], m1.shape[0]], dtype=m1.dtype)
         return m1, m2, c
 
     def multiply(a, b, c):
@@ -39,13 +39,13 @@ def strassen(m1, m2):
         b21 = b[size:, :size]
         b22 = b[size:, size:]
 
-        calc1 = strassen(a11 + a22, b11 + b22)
-        calc2 = strassen(a21 + a22, b11)
-        calc3 = strassen(a11, b12 - b22)
-        calc4 = strassen(a22, b21 - b11)
-        calc5 = strassen(a11 + a12, b22)
-        calc6 = strassen(a21 - a11, b11 + b12)
-        calc7 = strassen(a12 - a22, b21 + b22)
+        calc1 = multiply(a11 + a22, b11 + b22, np.empty([size, size]))
+        calc2 = multiply(a21 + a22, b11, np.empty([size, size]))
+        calc3 = multiply(a11, b12 - b22, np.empty([size, size]))
+        calc4 = multiply(a22, b21 - b11, np.empty([size, size]))
+        calc5 = multiply(a11 + a12, b22, np.empty([size, size]))
+        calc6 = multiply(a21 - a11, b11 + b12, np.empty([size, size]))
+        calc7 = multiply(a12 - a22, b21 + b22, np.empty([size, size]))
 
         c[:size, :size] = calc1 + calc4 - calc5 + calc7
         c[:size, size:] = calc3 + calc5
@@ -55,7 +55,7 @@ def strassen(m1, m2):
         return c
 
     a, b, c = process_input(m1, m2)
-    return multiply(a, b ,c)
+    return multiply(a, b, c)
 
 
 n = int(input())
