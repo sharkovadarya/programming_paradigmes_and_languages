@@ -1,6 +1,5 @@
 
 import numpy as np
-from math import log, ceil
 
 
 def read_matrix(n):
@@ -13,8 +12,10 @@ def read_matrix(n):
 
 
 def strassen(m1, m2, c):
-    # using base 2 logarithm to round n up to nearest power of 2
-    s = 2 ** (ceil(log(m1.shape[0], 2)))
+    if (m1.shape[0] - 1) & m1.shape[0]:
+        s = 2 ** m1.shape[0].bit_length()
+    else:
+        s = m1.shape[0]
     a = np.zeros([s, s], dtype=int)
     a[:m1.shape[0], :m1.shape[1]] = m1
     b = np.zeros([s, s], dtype=int)
@@ -52,7 +53,10 @@ def strassen(m1, m2, c):
 n = int(input())
 A = read_matrix(n)
 B = read_matrix(n)
-s = 2 ** (ceil(log(n, 2)))
+if (n - 1) & n:
+    s = 2 ** n.bit_length()
+else:
+    s = n
 print('\n'.join(' '.join(str(cell) for cell in row) for row in (strassen(A, B, np.empty([s, s], dtype=int)))[:n, :n]))
 
 
