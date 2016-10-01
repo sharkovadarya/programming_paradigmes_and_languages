@@ -6,7 +6,7 @@ class Scope(object):
     def __getitem__(self, item):
         dct = self.dictionary
         if item not in self.dictionary:
-            self.dictionary = self.parent.dictionary
+            return self.parent[item]
         return self.dictionary[item]
 
     def __setitem__(self, key, value):
