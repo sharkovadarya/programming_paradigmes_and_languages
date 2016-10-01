@@ -5,7 +5,7 @@ class Scope(object):
 
     def __getitem__(self, item):
         dct = self.dictionary
-        if item not in self.dictionary:
+        if self.parent and item not in self.dictionary:
             return self.parent[item]
         return self.dictionary[item]
 
@@ -87,6 +87,9 @@ class Number:
 
 
 class Function:
+    args = []
+    body = []
+
     def __init__(self, args, body):
         self.args = args
         self.body = body
@@ -106,6 +109,21 @@ class FunctionDefinition:
     def evaluate(self, scope):
         scope[self.name] = self.function
         return self.function
+
+
+class FunctionCall:
+    def __init__(self, fun_expr, args):
+        self.fun_expr = fun_expr
+        self.args = args
+
+    def evaluate(self, scope):
+        call_scope = Scope(scope)
+        i = 0
+        for arg in self.args:
+            call_scope[self.fun_expr.args[i]] = arg.evaluate(call_scope)
+            i += 1
+        scope = call_scope
+        return self.fun_expr.evaluate(call_scope)
 
 
 # important: source said condtion
@@ -145,19 +163,6 @@ class Read:
         res = int(input())
         scope[self.name] = res
         return Number(res)
-
-
-class FunctionCall:
-    def __init__(self, fun_expr, args):
-        self.fun_expr = fun_expr
-        self.args = args
-
-    def evaluate(self, scope):
-        call_scope = Scope(scope)
-        for arg, name in self.args, self.fun_expr.evaluate(scope).args:
-            call_scope[name] = arg.evaluate(call_scope)
-        function = Function(self.args, call_scope)
-        return function.evaluate(call_scope)
 
 
 class Reference:
@@ -223,18 +228,16 @@ if __name__ == '__main__':
     # testing: Function, Scope
     parent["foo"] = Function(num, num + Number(2))
     scope = Scope(parent)
-    ans = scope["bar"]
+    """ans = scope["bar"]
     scope["bar"] = Number(20)
     ans = scope["bar"]  # ans == Number(20)
-    ans = scope["foo"]  # ans == Function(...)
+    ans = scope["foo"]  # ans == Function(...)"""
 
     # testing: Read
     rd = Read("nmb")
     x = rd.evaluate(scope)
 
-    # testing: Function, FunctionDefinition, Conditional
-    func = Function(num, num * Number(2))
-    func_def = FunctionDefinition("multiply_by_two", func)
+    # testing: Conditional
     cons = Conditional(num > Number(5), None, [num - Number(1)])
     cond = Conditional(num + Number(1) == Number(6), [num % Number(4)], [num + Number(17)])
 
@@ -243,9 +246,6 @@ if __name__ == '__main__':
     m = prnt.evaluate(scope)
     prnt = Print(cond)
     k = prnt.evaluate(scope)
-
-    # testing: FunctionCall
-    f = FunctionCall(func_def, [Number(2)])
 
     # testing: BinaryOperation
     bin_op = BinaryOperation(k, "%", m)
@@ -262,3 +262,10 @@ if __name__ == '__main__':
     o = ref.evaluate(scope)
     prnt = Print(o)
     prnt.evaluate(scope)
+
+    # testing: Function, FunctionDefinition, FunctionCall
+    f = Function(["first", "second"], [BinaryOperation(Reference("first"), '*', Reference("second"))])
+    fd = FunctionDefinition("multiply", f)
+    res = FunctionCall(fd.evaluate(scope), [Number(8), Number(3)])
+    prnt = Print(res)
+    x = prnt.evaluate(scope)
