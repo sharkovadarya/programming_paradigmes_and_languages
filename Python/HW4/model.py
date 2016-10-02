@@ -114,10 +114,10 @@ class FunctionCall:
         call_scope = Scope(scope)
         i = 0
         for arg in self.args:
-            call_scope[self.fun_expr.args[i]] = arg.evaluate(call_scope)
+            call_scope[self.fun_expr.evaluate(scope).args[i]] = arg.evaluate(call_scope)
             i += 1
         scope = call_scope
-        return self.fun_expr.evaluate(call_scope)
+        return self.fun_expr.evaluate(scope).evaluate(scope)
 
 
 class Conditional:
@@ -128,13 +128,15 @@ class Conditional:
 
     def evaluate(self, scope):
         num = self.condition.evaluate(scope)
-        res = Number(0)
+        res = Number(1)
         if num.number == 0:
-            for expr in self.if_false:
+            if self.if_false:
+                for expr in self.if_false:
+                    res = expr.evaluate(scope)
+                return res
+        if self.if_true:
+            for expr in self.if_true:
                 res = expr.evaluate(scope)
-            return res
-        for expr in self.if_true:
-            res = expr.evaluate(scope)
         return res
 
 
@@ -226,7 +228,7 @@ if __name__ == '__main__':
     x = rd.evaluate(scope)
 
     # testing: Conditional
-    cond1 = Conditional(num > Number(5), None, [num - Number(1)])
+    cond1 = Conditional(num > Number(5), None, None)
     cond2 = Conditional(num + Number(1) == Number(6), [num % Number(4)], [num + scope["bar"]])
 
     # testing: Print
@@ -254,20 +256,19 @@ if __name__ == '__main__':
     # testing: Function, FunctionDefinition, FunctionCall
     f = Function(["first", "second"], [BinaryOperation(Reference("first"), '*', Reference("second"))])
     fd = FunctionDefinition("multiply", f)
-    res = FunctionCall(fd.evaluate(scope), [v, Number(3)])
+    res = FunctionCall(fd, [v, Number(3)])
     prnt = Print(res)
     l = prnt.evaluate(scope)
 
     g = Function(["x"], [Conditional(BinaryOperation(UnaryOperation('-', Reference("x")), '<=', Number(-7)),
-                                           [Print(FunctionCall(fd.evaluate(scope), [Reference("x"), Number(5)]))],
-                                           [Print(BinaryOperation(Reference("x"), "%", l)),
-                                            Print(FunctionCall(fd.evaluate(scope),
-                                                               [Reference("x"), m]))]),
-                         FunctionCall(fd.evaluate(scope), [Reference("x"), x])])
+                                     [Print(FunctionCall(fd, [Reference("x"), Number(5)]))],
+                                     [Print(BinaryOperation(Reference("x"), "%", Number(2))),
+                                      Print(FunctionCall(fd, [Reference("x"), m]))]),
+                         FunctionCall(fd, [Reference("x"), k + Number(3)])])
     gd = FunctionDefinition("g", g)
-    res = FunctionCall(gd.evaluate(scope), [Number(9)])
+    res = FunctionCall(gd, [Number(9)])
     prnt = Print(res)
     res = prnt.evaluate(scope)
-    res = FunctionCall(gd.evaluate(scope), [Number(2)])
+    res = FunctionCall(gd, [Number(2)])
     prnt = Print(res)
     res = prnt.evaluate(scope)
