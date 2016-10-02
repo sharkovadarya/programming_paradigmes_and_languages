@@ -129,11 +129,10 @@ class Conditional:
     def evaluate(self, scope):
         num = self.condition.evaluate(scope)
         res = Number(1)
-        if num.number == 0:
-            if self.if_false:
-                for expr in self.if_false:
-                    res = expr.evaluate(scope)
-                return res
+        if num.number == 0 and self.if_false:
+            for expr in self.if_false:
+                res = expr.evaluate(scope)
+            return res
         if self.if_true:
             for expr in self.if_true:
                 res = expr.evaluate(scope)
