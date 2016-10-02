@@ -155,7 +155,7 @@ class Read:
 
     def evaluate(self, scope):
         res = int(input())
-        scope[self.name] = res
+        scope[self.name] = Number(res)
         return Number(res)
 
 
@@ -271,3 +271,5 @@ if __name__ == '__main__':
     res = FunctionCall(gd, [Number(2)])
     prnt = Print(res)
     res = prnt.evaluate(scope)
+
+    Conditional(Read("t").evaluate(scope), [Print(Number(1))], [Print(Number(0))]).evaluate(scope)
