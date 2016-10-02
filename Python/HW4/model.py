@@ -4,7 +4,6 @@ class Scope(object):
         self.dictionary = {}
 
     def __getitem__(self, item):
-        dct = self.dictionary
         if self.parent and item not in self.dictionary:
             return self.parent[item]
         return self.dictionary[item]
@@ -14,8 +13,6 @@ class Scope(object):
 
 
 class Number:
-    number = 0
-
     def __init__(self, value):
         self.number = value
 
@@ -87,9 +84,6 @@ class Number:
 
 
 class Function:
-    args = []
-    body = []
-
     def __init__(self, args, body):
         self.args = args
         self.body = body
@@ -126,10 +120,9 @@ class FunctionCall:
         return self.fun_expr.evaluate(call_scope)
 
 
-# important: source said condtion
 class Conditional:
-    def __init__(self, condition, if_true, if_false=None):
-        self.condition = condition
+    def __init__(self, condtion, if_true, if_false=None):
+        self.condition = condtion
         self.if_true = if_true
         self.if_false = if_false
 
