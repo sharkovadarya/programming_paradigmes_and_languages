@@ -29,7 +29,7 @@ class Number:
         return Number(self.number * other.number)
 
     def __truediv__(self, other):
-        return Number(self.number / other.number)
+        return Number(self.number // other.number)
 
     def __mod__(self, other):
         return Number(self.number % other.number)
