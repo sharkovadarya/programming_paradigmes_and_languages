@@ -19,80 +19,17 @@ class Number:
     def evaluate(self, scope):
         return self
 
-    def __add__(self, other):
-        return Number(self.number + other.number)
-
-    def __sub__(self, other):
-        return Number(self.number - other.number)
-
-    def __mul__(self, other):
-        return Number(self.number * other.number)
-
-    def __truediv__(self, other):
-        return Number(self.number // other.number)
-
-    def __mod__(self, other):
-        return Number(self.number % other.number)
-
-    def __eq__(self, other):
-        if self.number == other.number:
-            return Number(1)
-        return Number(0)
-
-    def __ne__(self, other):
-        if self.number != other.number:
-            return Number(1)
-        return Number(0)
-
-    def __le__(self, other):
-        if self.number <= other.number:
-            return Number(1)
-        return Number(0)
-
-    def __ge__(self, other):
-        if self.number >= other.number:
-            return Number(1)
-        return Number(0)
-
-    def __lt__(self, other):
-        if self.number < other.number:
-            return Number(1)
-        return Number(0)
-
-    def __gt__(self, other):
-        if self.number > other.number:
-            return Number(1)
-        return Number(0)
-
-    def __and__(self, other):
-        if self.number and other.number:
-            return Number(1)
-        return Number(0)
-
-    def __or__(self, other):
-        if self.number or other.number:
-            return Number(1)
-        return Number(0)
-
-    def __neg__(self):
-        return Number(-self.number)
-
-    def __not__(self):
-        if self.number:
-            return Number(0)
-        return Number(1)
-
 
 class Function:
     def __init__(self, args, body):
         self.args = args
         self.body = body
-        self.res = 0
 
     def evaluate(self, scope):
+        res = Number(0)
         for expr in self.body:
-            self.res = expr.evaluate(scope)
-        return self.res
+            res = expr.evaluate(scope)
+        return res
 
 
 class FunctionDefinition:
@@ -111,13 +48,14 @@ class FunctionCall:
         self.args = args
 
     def evaluate(self, scope):
+        function = self.fun_expr.evaluate(scope);
         call_scope = Scope(scope)
         i = 0
         for arg in self.args:
-            call_scope[self.fun_expr.evaluate(scope).args[i]] = arg.evaluate(call_scope)
+            call_scope[function.args[i]] = arg.evaluate(scope)
             i += 1
         scope = call_scope
-        return self.fun_expr.evaluate(scope).evaluate(scope)
+        return function.evaluate(scope)
 
 
 class Conditional:
@@ -128,14 +66,13 @@ class Conditional:
 
     def evaluate(self, scope):
         num = self.condition.evaluate(scope)
+        if num.number == 0:
+            block = self.if_false
+        else:
+            block = self.if_true
         res = Number(1)
-        if num.number == 0 and self.if_false:
-            for expr in self.if_false:
-                res = expr.evaluate(scope)
-            return res
-        if self.if_true:
-            for expr in self.if_true:
-                res = expr.evaluate(scope)
+        for expr in block or []:
+            res = expr.evaluate(scope)
         return res
 
 
@@ -174,32 +111,22 @@ class BinaryOperation:
         self.rhs = rhs
 
     def evaluate(self, scope):
-        if self.op == '+':
-            return self.lhs.evaluate(scope) + self.rhs.evaluate(scope)
-        if self.op == '-':
-            return self.lhs.evaluate(scope) - self.rhs.evaluate(scope)
-        if self.op == '*':
-            return self.lhs.evaluate(scope) * self.rhs.evaluate(scope)
-        if self.op == '/':
-            return self.lhs.evaluate(scope) / self.rhs.evaluate(scope)
-        if self.op == '%':
-            return self.lhs.evaluate(scope) % self.rhs.evaluate(scope)
-        if self.op == '==':
-            return self.lhs.evaluate(scope) == self.rhs.evaluate(scope)
-        if self.op == '!=':
-            return self.lhs.evaluate(scope) != self.rhs.evaluate(scope)
-        if self.op == '>':
-            return self.lhs.evaluate(scope) > self.rhs.evaluate(scope)
-        if self.op == '>=':
-            return self.lhs.evaluate(scope) >= self.rhs.evaluate(scope)
-        if self.op == '<':
-            return self.lhs.evaluate(scope) < self.rhs.evaluate(scope)
-        if self.op == '<=':
-            return self.lhs.evaluate(scope) <= self.rhs.evaluate(scope)
-        if self.op == '&&':
-            return self.lhs.evaluate(scope) and self.rhs.evaluate(scope)
-        if self.op == '||':
-            return self.lhs.evaluate(scope) or self.rhs.evaluate(scope)
+        operations = { '+': lambda x, y: x + y,
+                       '-': lambda x, y: x - y,
+                       '*': lambda x, y: x * y,
+                       '/': lambda x, y: x // y,
+                       '%': lambda x, y: x % y,
+                       '==': lambda x, y: x == y,
+                       '!=': lambda x, y: x != y,
+                       '>': lambda x, y: x > y,
+                       '>=': lambda  x, y: x >= y,
+                       '<': lambda x, y: x < y,
+                       '<=': lambda x, y: x <= y,
+                       '&&': lambda x, y: x and y,
+                       '||': lambda x, y: x or y
+                       }
+
+        return Number(operations[self.op](self.lhs.evaluate(scope).number, self.rhs.evaluate(scope).number))
 
 
 class UnaryOperation:
@@ -208,11 +135,11 @@ class UnaryOperation:
         self.expression = expr
 
     def evaluate(self, scope):
-        if self.op == '-':
-            return -self.expression.evaluate(scope)
-        if self.op == '!':
-            return self.expression.evaluate(scope).__not__()
-
+        operations = {
+            '-': lambda x: -x,
+            '!': lambda x: 1 if not x else 0
+        }
+        return Number(operations[self.op](self.expression.evaluate(scope).number))
 
 if __name__ == '__main__':
     # testing: Scope, Number
@@ -227,8 +154,9 @@ if __name__ == '__main__':
     x = rd.evaluate(scope)
 
     # testing: Conditional
-    cond1 = Conditional(num > Number(5), None, None)
-    cond2 = Conditional(num + Number(1) == Number(6), [num % Number(4)], [num + scope["bar"]])
+    cond1 = Conditional(BinaryOperation(num, '>', Number(5)), None, None)
+    cond2 = Conditional(BinaryOperation(BinaryOperation(num, '+', Number(1)), '==', Number(6)),
+                        [BinaryOperation(num, '%', Number(4))], [BinaryOperation(num, '+', Number(3))])
 
     # testing: Print
     prnt = Print(cond1)
@@ -263,7 +191,7 @@ if __name__ == '__main__':
                                      [Print(FunctionCall(fd, [Reference("x"), Number(5)]))],
                                      [Print(BinaryOperation(Reference("x"), "%", Number(2))),
                                       Print(FunctionCall(fd, [Reference("x"), m]))]),
-                         FunctionCall(fd, [Reference("x"), k + Number(3)])])
+                         FunctionCall(fd, [Reference("x"), Number(3)])])
     gd = FunctionDefinition("g", g)
     res = FunctionCall(gd, [Number(9)])
     prnt = Print(res)
