@@ -48,7 +48,7 @@ class FunctionCall:
         self.args = args
 
     def evaluate(self, scope):
-        function = self.fun_expr.evaluate(scope);
+        function = self.fun_expr.evaluate(scope)
         call_scope = Scope(scope)
         i = 0
         for arg in self.args:
@@ -105,41 +105,42 @@ class Reference:
 
 
 class BinaryOperation:
+    operations = {'+': lambda x, y: x + y,
+                  '-': lambda x, y: x - y,
+                  '*': lambda x, y: x * y,
+                  '/': lambda x, y: x // y,
+                  '%': lambda x, y: x % y,
+                  '==': lambda x, y: 1 if x == y else 0,
+                  '!=': lambda x, y: 1 if x != y else 0,
+                  '>': lambda x, y: 1 if x > y else 0,
+                  '>=': lambda x, y: 1 if x >= y else 0,
+                  '<': lambda x, y: 1 if x < y else 0,
+                  '<=': lambda x, y: 1 if x <= y else 0,
+                  '&&': lambda x, y: x and y,
+                  '||': lambda x, y: x or y
+                  }
+
     def __init__(self, lhs, op, rhs):
         self.lhs = lhs
         self.op = op
         self.rhs = rhs
 
     def evaluate(self, scope):
-        operations = { '+': lambda x, y: x + y,
-                       '-': lambda x, y: x - y,
-                       '*': lambda x, y: x * y,
-                       '/': lambda x, y: x // y,
-                       '%': lambda x, y: x % y,
-                       '==': lambda x, y: x == y,
-                       '!=': lambda x, y: x != y,
-                       '>': lambda x, y: x > y,
-                       '>=': lambda  x, y: x >= y,
-                       '<': lambda x, y: x < y,
-                       '<=': lambda x, y: x <= y,
-                       '&&': lambda x, y: x and y,
-                       '||': lambda x, y: x or y
-                       }
-
-        return Number(operations[self.op](self.lhs.evaluate(scope).number, self.rhs.evaluate(scope).number))
+        return Number(self.operations[self.op](self.lhs.evaluate(scope).number, self.rhs.evaluate(scope).number))
 
 
 class UnaryOperation:
+    operations = {
+        '-': lambda x: -x,
+        '!': lambda x: 1 if not x else 0
+    }
+
     def __init__(self, op, expr):
         self.op = op
         self.expression = expr
 
     def evaluate(self, scope):
-        operations = {
-            '-': lambda x: -x,
-            '!': lambda x: 1 if not x else 0
-        }
-        return Number(operations[self.op](self.expression.evaluate(scope).number))
+        return Number(self.operations[self.op](self.expression.evaluate(scope).number))
 
 if __name__ == '__main__':
     # testing: Scope, Number
@@ -155,8 +156,8 @@ if __name__ == '__main__':
 
     # testing: Conditional
     cond1 = Conditional(BinaryOperation(num, '>', Number(5)), None, None)
-    cond2 = Conditional(BinaryOperation(BinaryOperation(num, '+', Number(1)), '==', Number(6)),
-                        [BinaryOperation(num, '%', Number(4))], [BinaryOperation(num, '+', Number(3))])
+    cond2 = Conditional(BinaryOperation(BinaryOperation(num, '+', Number(1)), '>', Number(6)),
+                        [Print(Number(30))], [Print(Number(59))])
 
     # testing: Print
     prnt = Print(cond1)
@@ -173,12 +174,14 @@ if __name__ == '__main__':
     un_op = UnaryOperation("!", Number(0))
     prnt = Print(un_op)
     prnt.evaluate(scope)
+    Print(UnaryOperation('-', Number(3))).evaluate(scope)
+    Print(BinaryOperation(Number(2), '||', Number(0))).evaluate(scope)
 
     # testing: reference
     ref = Reference("bar")
     o = ref.evaluate(scope)
     prnt = Print(o)
-    v = prnt.evaluate(scope)
+    v = prnt.evaluate(scope)    
 
     # testing: Function, FunctionDefinition, FunctionCall
     f = Function(["first", "second"], [BinaryOperation(Reference("first"), '*', Reference("second"))])
