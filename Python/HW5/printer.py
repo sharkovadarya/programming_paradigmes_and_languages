@@ -1,6 +1,3 @@
-import model
-
-
 class PrettyPrinter:
 
     def visit(self, tree):
