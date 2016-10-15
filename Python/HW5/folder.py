@@ -35,11 +35,11 @@ class ConstantFolder:
     def visit_conditional(self, cond):
         cond.condition = cond.condition.visit(self)
 
-        def process(block):
-            for i in range(len(block)):
-                block[i] = self.visit(block[i])
-        process(cond.if_true or [])
-        process(cond.if_false or [])
+        def process_list(lst):
+            for i in range(len(lst)):
+                lst[i] = self.visit(lst[i])
+        process_list(cond.if_true or [])
+        process_list(cond.if_false or [])
         return cond
 
     def visit_print(self, prnt):
