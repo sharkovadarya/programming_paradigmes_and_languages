@@ -6,6 +6,10 @@ class ConstantFolder:
         new_tree = tree.visit(self)
         return new_tree
 
+    def process_list(self, lst):
+        for i in range(len(lst)):
+            lst[i] = self.visit(lst[i])
+
     def visit_number(self, num):
         return num
 
@@ -35,11 +39,8 @@ class ConstantFolder:
     def visit_conditional(self, cond):
         cond.condition = cond.condition.visit(self)
 
-        def process_list(lst):
-            for i in range(len(lst)):
-                lst[i] = self.visit(lst[i])
-        process_list(cond.if_true or [])
-        process_list(cond.if_false or [])
+        self.process_list(cond.if_true or [])
+        self.process_list(cond.if_false or [])
         return cond
 
     def visit_print(self, prnt):
@@ -49,12 +50,10 @@ class ConstantFolder:
         return rd
 
     def visit_function_definition(self, func_def):
-        for i in range(len(func_def.function.body)):
-            func_def.function.body[i] = self.visit(func_def.function.body[i])
+        self.process_list(func_def.function.body)
         return func_def
 
     def visit_function_call(self, func_call):
-        for i in range(len(func_call.args)):
-            func_call.args[i] = self.visit(func_call.args[i])
+        self.process_list(func_call.args)
         func_call.fun_expr = func_call.fun_expr.visit(self)
         return func_call
