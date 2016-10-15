@@ -1,3 +1,6 @@
+import model
+
+
 class PrettyPrinter:
 
     def visit(self, tree):
@@ -9,16 +12,17 @@ class PrettyPrinter:
 
     def visit_conditional(self, conditional):
         print("if (", end="")
-        self.visit_number(conditional.evaluate(scope))
+        conditional.condition.visit(self)
         print(") {")
 
-        for action in conditional.if_true or []:
-            print("\t", end="")
-            self.visit(action)
+        def process_list(lst):
+            for action in lst:
+                print("\t", end="")
+                self.visit(action)
+
+        process_list(conditional.if_true or [])
         print("} else {")
-        for action in conditional.if_false or []:
-            print("\t", end="")
-            self.visit(action)
+        process_list(conditional.if_false or [])
         print("}")
 
     def visit_reference(self, ref):
@@ -55,8 +59,9 @@ class PrettyPrinter:
     def visit_function_call(self, func_call):
         func_call.fun_expr.visit(self)
         print("(", end="")
-        for arg in func_call.args[:-1]:
-            arg.visit(self)
-            print(",", end="")
-        func_call.args[-1].visit(self)
+        if len(func_call.args):
+            for arg in func_call.args[:-1]:
+                arg.visit(self)
+                print(",", end="")
+            func_call.args[-1].visit(self)
         print(")", end="")

@@ -3,8 +3,8 @@ import yat.model as model
 
 class ConstantFolder:
     def visit(self, tree):
-        tree = tree.visit(self)
-        return tree
+        new_tree = tree.visit(self)
+        return new_tree
 
     def visit_number(self, num):
         return num
@@ -34,12 +34,12 @@ class ConstantFolder:
 
     def visit_conditional(self, cond):
         cond.condition = cond.condition.visit(self)
-        block = cond.if_true or []
-        for i in range(len(block)):
-            block[i] = self.visit(block[i])
-        block = cond.if_false or []
-        for i in range(len(block)):
-            block[i] = self.visit(block[i])
+
+        def process(block):
+            for i in range(len(block)):
+                block[i] = self.visit(block[i])
+        process(cond.if_true or [])
+        process(cond.if_false or [])
         return cond
 
     def visit_print(self, prnt):
