@@ -1,26 +1,21 @@
 class PrettyPrinter:
     def __init__(self):
         self.padding = 0
-        self.end_padding = 0
 
     def visit(self, tree):
         tree.visit(self)
-        print(self.end_padding * " " + ";")
-        if self.end_padding >= 4:
-            self.end_padding -= 4
+        print(";")
 
     def process_list(self, lst):
         self.padding += 4
         for action in lst:
             self.visit(action)
         self.padding -= 4
-        self.end_padding = self.padding
 
     def visit_number(self, num):
         print(self.padding * " " + "(", end="")
         print(str(num.number) , end="")
         print(")", end="")
-        self.end_padding = 0
 
     def visit_conditional(self, conditional):
         tmp = self.padding
@@ -33,7 +28,7 @@ class PrettyPrinter:
         self.process_list(conditional.if_true or [])
         print(self.padding * " " + "} else {")
         self.process_list(conditional.if_false or [])
-        print(self.padding * " " + "}")
+        print(self.padding * " " + "}", end="")
 
     def visit_reference(self, ref):
         print(self.padding * " " + ref.name, end='')
