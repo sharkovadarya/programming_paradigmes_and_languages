@@ -3,6 +3,7 @@ class PrettyPrinter:
         self.padding = 0
 
     def visit(self, tree):
+        print(self.padding * " ", end="")
         tree.visit(self)
         print(";")
 
@@ -13,16 +14,13 @@ class PrettyPrinter:
         self.padding -= 4
 
     def visit_number(self, num):
-        print(self.padding * " " + "(", end="")
+        print("(", end="")
         print(str(num.number) , end="")
         print(")", end="")
 
     def visit_conditional(self, conditional):
-        tmp = self.padding
-        print(self.padding * " " + "if (", end="")
-        self.padding = 0
+        print("if (", end="")
         conditional.condition.visit(self)
-        self.padding = tmp
         print(") {")
 
         self.process_list(conditional.if_true or [])
@@ -31,29 +29,29 @@ class PrettyPrinter:
         print(self.padding * " " + "}", end="")
 
     def visit_reference(self, ref):
-        print(self.padding * " " + ref.name, end='')
+        print(ref.name, end='')
 
     def visit_binary_operation(self, bin_op):
-        print(self.padding * " " + '(', end='')
+        print('(', end='')
         bin_op.lhs.visit(self)
         print(bin_op.op, end='')
         bin_op.rhs.visit(self)
         print(')', end='')
 
     def visit_unary_operation(self, un_op):
-        print(self.padding * " " + '({}'.format(un_op.op), end='')
+        print('({}'.format(un_op.op), end='')
         un_op.expression.visit(self)
         print(')', end='')
 
     def visit_print(self, prnt):
-        print(self.padding * " " + "print", end=" ")
+        print("print", end=" ")
         prnt.expression.visit(self)
 
     def visit_read(self, rd):
-        print(self.padding * " " + "read", rd.name, end="")
+        print("read", rd.name, end="")
 
     def visit_function_definition(self, func_def):
-        print(self.padding * " " + "def", func_def.name, end="(")
+        print("def", func_def.name, end="(")
         print(','.join(func_def.function.args), end="")
         print(") {")
         self.process_list(func_def.function.body)
