@@ -17,8 +17,8 @@ class PrettyPrinter:
         self.end_padding = self.padding
 
     def visit_number(self, num):
-        print("(", end="")
-        print(self.padding * " " + str(num.number) , end="")
+        print(self.padding * " " + "(", end="")
+        print(str(num.number) , end="")
         print(")", end="")
         self.end_padding = 0
 
