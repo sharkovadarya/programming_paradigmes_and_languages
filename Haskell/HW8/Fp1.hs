@@ -22,10 +22,8 @@ length' (x:xs) = 1 + length xs
 -- 4. drop' возвращает список без первых n >= 0 элементов; если n больше длины -- списка, то пустой список. (0,5)
 drop' :: Int -> [a] -> [a]
 drop' _ [] = []
-drop' n (x:xs)
-    | n > length' (x:xs) = []
-    | n == 0             = (x:xs)
-    | otherwise          = drop' (n - 1) xs
+drop' n xs | n <= 0 = xs
+drop' n (_:xs) = drop' (n - 1) xs
 
 -- 5. filter' возвращает список из элементов, для которых f возвращает True (0,5)
 filter' :: (a -> Bool) -> [a] -> [a]
@@ -54,7 +52,7 @@ concat' xs ys = foldl' (flip' (:)) ys (reverse' xs)
 -- 8. quickSort' возвращает его отсортированный список (0,5)
 quickSort' :: Ord a => [a] -> [a]
 quickSort' [] = []
-quickSort' (x:xs) = concat' (quickSort' a) (concat' [x] (quickSort' b))
+quickSort' (x:xs) = concat' (quickSort' a) [x] (quickSort' b)
     where a = filter' (<= x) xs
           b = filter' (> x) xs
 
