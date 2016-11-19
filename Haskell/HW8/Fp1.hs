@@ -52,7 +52,7 @@ concat' xs ys = foldl' (flip' (:)) ys (reverse' xs)
 -- 8. quickSort' возвращает его отсортированный список (0,5)
 quickSort' :: Ord a => [a] -> [a]
 quickSort' [] = []
-quickSort' (x:xs) = concat' (quickSort' a) [x] (quickSort' b)
+quickSort' (x:xs) = concat' (quickSort' a) (x : (quickSort' b))
     where a = filter' (<= x) xs
           b = filter' (> x) xs
 
